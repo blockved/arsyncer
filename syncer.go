@@ -23,6 +23,7 @@ const (
 
 type Syncer struct {
 	curHeight int64
+	endHeight int64
 	FilterParams
 	blockChan            chan *types.Block
 	blockTxsChan         chan []SubscribeTx
@@ -37,9 +38,13 @@ type Syncer struct {
 
 	subscribeType      string
 	SubscribeBlockChan chan *types.Block
+	close              chan struct{}
 }
 
-func New(startHeight int64, filterParams FilterParams, arNode string, conNum int, stableDistance int64, subscribeType string) *Syncer {
+func New(startHeight int64, endHeight int64, filterParams FilterParams, arNode string, conNum int, stableDistance int64, subscribeType string) *Syncer {
+	if startHeight <= endHeight {
+		endHeight = 0
+	}
 	if conNum <= 0 {
 		conNum = 10 // default concurrency of number is 10
 	}
@@ -62,6 +67,7 @@ func New(startHeight int64, filterParams FilterParams, arNode string, conNum int
 
 	return &Syncer{
 		curHeight:            startHeight,
+		endHeight:            endHeight,
 		FilterParams:         filterParams,
 		blockChan:            make(chan *types.Block, 5*conNum),
 		SubscribeBlockChan:   make(chan *types.Block, 5*conNum),
@@ -113,10 +119,18 @@ func (s *Syncer) pollingBlock() {
 			time.Sleep(10 * time.Second)
 			continue
 		}
-		stableHeight := info.Height - s.stableDistance
+		stableHeight := int64(0)
+		if s.endHeight != 0 {
+			stableHeight = s.endHeight
+		} else {
+			stableHeight = info.Height - s.stableDistance
+		}
 		log.Debug("stable block", "height", stableHeight)
 
 		if s.curHeight >= stableHeight {
+			if s.endHeight != 0 {
+				s.close <- struct{}{}
+			}
 			log.Debug("synced curHeight must less than on chain stableHeight; please wait 2 minute", "curHeight", s.curHeight, "stableHeight", stableHeight)
 			time.Sleep(2 * time.Minute)
 			continue
