@@ -38,7 +38,7 @@ type Syncer struct {
 
 	subscribeType      string
 	SubscribeBlockChan chan *types.Block
-	close              chan struct{}
+	CloseCh            chan struct{}
 }
 
 func New(startHeight int64, endHeight int64, filterParams FilterParams, arNode string, conNum int, stableDistance int64, subscribeType string) *Syncer {
@@ -129,7 +129,7 @@ func (s *Syncer) pollingBlock() {
 
 		if s.curHeight >= stableHeight {
 			if s.endHeight != 0 {
-				s.close <- struct{}{}
+				s.CloseCh <- struct{}{}
 			}
 			log.Debug("synced curHeight must less than on chain stableHeight; please wait 2 minute", "curHeight", s.curHeight, "stableHeight", stableHeight)
 			time.Sleep(2 * time.Minute)
