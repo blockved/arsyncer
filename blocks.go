@@ -18,7 +18,7 @@ type BlockIdxs struct {
 }
 
 func GetBlockIdxs(startHeight int64, endHeight int64, arCli *goar.Client) (*BlockIdxs, error) {
-	if endHeight != 0 {
+	if endHeight == 0 {
 		info, err := arCli.GetInfo()
 		if err != nil {
 			log.Error("arCli.GetInfo()", "err", err)
