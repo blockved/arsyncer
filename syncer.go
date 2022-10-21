@@ -54,7 +54,7 @@ func New(startHeight int64, endHeight int64, filterParams FilterParams, arNode s
 	arCli := goar.NewClient(arNode)
 
 	fmt.Println("Init arweave block indep hash_list, need to speed about 2 minutes...")
-	idxs, err := GetBlockIdxs(startHeight, arCli)
+	idxs, err := GetBlockIdxs(startHeight, endHeight, arCli)
 	if err != nil {
 		panic(err)
 	}
