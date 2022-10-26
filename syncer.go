@@ -42,7 +42,7 @@ type Syncer struct {
 }
 
 func New(startHeight int64, endHeight int64, filterParams FilterParams, arNode string, conNum int, stableDistance int64, subscribeType string) *Syncer {
-	if startHeight >= endHeight {
+	if startHeight > endHeight {
 		endHeight = 0
 	}
 	if conNum <= 0 {
