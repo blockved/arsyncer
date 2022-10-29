@@ -42,10 +42,10 @@ type Syncer struct {
 	CloseCh            chan struct{}
 }
 
-func New(startHeight int64, endHeight int64, filterParams FilterParams, arNode string, conNum int, stableDistance int64, subscribeType string, logPath string) *Syncer {
+func New(startHeight int64, endHeight int64, filterParams FilterParams, arNode string, conNum int, stableDistance int64, subscribeType string, logPath string, peers []string) *Syncer {
 	log = NewLog("syncer", logPath)
 	if startHeight > endHeight {
-		endHeight = 0
+		panic("startHeight > endHeight")
 	}
 	if conNum <= 0 {
 		conNum = 10 // default concurrency of number is 10
@@ -62,11 +62,12 @@ func New(startHeight int64, endHeight int64, filterParams FilterParams, arNode s
 	}
 	fmt.Println("Init arweave block indep hash_list finished...")
 
-	peers, err := arCli.GetPeers()
-	if err != nil {
-		panic(err)
+	if len(peers) == 0 {
+		peers, err = arCli.GetPeers()
+		if err != nil {
+			panic(err)
+		}
 	}
-
 	return &Syncer{
 		curHeight:            startHeight,
 		endHeight:            endHeight,
