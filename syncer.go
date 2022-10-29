@@ -39,7 +39,7 @@ type Syncer struct {
 
 	subscribeType      string
 	SubscribeBlockChan chan *types.Block
-	CloseCh            chan struct{}
+	isClose            atomic.Int32
 }
 
 func New(startHeight int64, endHeight int64, filterParams FilterParams, arNode string, conNum int, stableDistance int64, subscribeType string, logPath string, peers []string) *Syncer {
@@ -95,10 +95,12 @@ func (s *Syncer) Run() {
 }
 
 func (s *Syncer) Close() (subscribeHeight int64) {
-	close(s.blockChan)
-	close(s.blockTxsChan)
-	close(s.SubscribeChan)
-	close(s.SubscribeBlockChan)
+	if s.isClose.CompareAndSwap(0, 1) {
+		close(s.blockChan)
+		close(s.blockTxsChan)
+		close(s.SubscribeChan)
+		close(s.SubscribeBlockChan)
+	}
 	return s.nextSubscribeTxBlock - 1
 }
 
