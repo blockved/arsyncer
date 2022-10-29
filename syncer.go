@@ -39,7 +39,8 @@ type Syncer struct {
 
 	subscribeType      string
 	SubscribeBlockChan chan *types.Block
-	isClose            atomic.Int32
+	isCloseBlock       atomic.Int32
+	isCloseTx          atomic.Int32
 }
 
 func New(startHeight int64, endHeight int64, filterParams FilterParams, arNode string, conNum int, stableDistance int64, subscribeType string, logPath string, peers []string) *Syncer {
@@ -94,14 +95,25 @@ func (s *Syncer) Run() {
 	go s.filterTx()
 }
 
-func (s *Syncer) Close() (subscribeHeight int64) {
-	if s.isClose.CompareAndSwap(0, 1) {
+func (s *Syncer) CloseBlockCh() {
+	if s.isCloseBlock.CompareAndSwap(0, 1) {
 		close(s.blockChan)
-		close(s.blockTxsChan)
-		close(s.SubscribeChan)
 		close(s.SubscribeBlockChan)
 		s.clearJobs()
 	}
+}
+func (s *Syncer) CloseTxCh() {
+	if s.isCloseBlock.CompareAndSwap(0, 1) {
+		close(s.blockChan)
+		close(s.SubscribeBlockChan)
+		s.clearJobs()
+	}
+}
+func (s *Syncer) Close() (subscribeHeight int64) {
+	close(s.blockChan)
+	close(s.blockTxsChan)
+	close(s.SubscribeChan)
+	close(s.SubscribeBlockChan)
 	return s.nextSubscribeTxBlock - 1
 }
 
@@ -135,9 +147,10 @@ func (s *Syncer) pollingBlock() {
 
 		if s.curHeight >= stableHeight {
 			if s.endHeight != 0 {
-				s.Close()
+				s.CloseBlockCh()
+				return
 			}
-			log.Debug("synced curHeight must less than on chain stableHeight; please wait 2 minute", "curHeight", s.curHeight, "stableHeight", stableHeight)
+			log.Debug("synced curHeight must less than on chain stableHeight; please wait 2 minute", "curHeight", s.curHeight, "stableHeight", stableHeight, "endHeight", s.endHeight)
 			time.Sleep(2 * time.Minute)
 			continue
 		}
@@ -182,6 +195,9 @@ func (s *Syncer) pollingTx() {
 			}
 
 			go s.getTxs(*b)
+			if bHeight >= s.endHeight {
+				return
+			}
 		}
 	}
 }
@@ -221,7 +237,9 @@ func (s *Syncer) filterTx() {
 				return
 			}
 			filterTxs := make([]SubscribeTx, 0, len(txs))
+			height := int64(0)
 			for _, tx := range txs {
+				height = tx.BlockHeight
 				if filter(s.FilterParams, tx.Transaction) {
 					continue
 				}
@@ -230,6 +248,10 @@ func (s *Syncer) filterTx() {
 
 			if len(filterTxs) > 0 {
 				s.SubscribeChan <- filterTxs
+				if s.endHeight > 0 && height >= s.endHeight {
+					s.CloseTxCh()
+					return
+				}
 			}
 		}
 	}
