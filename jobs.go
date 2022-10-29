@@ -10,6 +10,9 @@ func (s *Syncer) updateBlockHashList() {
 	if s.blockIdxs.EndHeight-s.curHeight > s.stableDistance/2+1 {
 		return
 	}
+	if s.curHeight <= s.endHeight {
+		return
+	}
 
 	idxs, err := GetBlockIdxs(s.curHeight, s.endHeight, s.arClient)
 	if err != nil {
