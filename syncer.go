@@ -132,7 +132,7 @@ func (s *Syncer) pollingBlock() {
 
 		if s.curHeight >= stableHeight {
 			if s.endHeight != 0 {
-				s.CloseCh <- struct{}{}
+				s.Close()
 			}
 			log.Debug("synced curHeight must less than on chain stableHeight; please wait 2 minute", "curHeight", s.curHeight, "stableHeight", stableHeight)
 			time.Sleep(2 * time.Minute)
