@@ -10,9 +10,10 @@ import (
 func main() {
 	nullFilterParams := arsyncer.FilterParams{} // non-file params
 	startHeight := int64(879220)
+	endHeight := int64(979220)
 	arNode := "https://arweave.net"
 	concurrencyNumber := 10 // runtime concurrency number, default 10
-	s := arsyncer.New(startHeight, nullFilterParams, arNode, concurrencyNumber, 15, "subscribe_block_and_tx")
+	s := arsyncer.New(startHeight, endHeight, nullFilterParams, arNode, concurrencyNumber, 15, "subscribe_block_and_tx", "./err.log")
 
 	// run
 	s.Run()

@@ -1,27 +1,19 @@
 package arsyncer
 
 import (
-	"github.com/getsentry/sentry-go"
 	"github.com/inconshreveable/log15"
 )
 
-func NewLog(serverName string) log15.Logger {
+func NewLog(serverName string, logPath string) log15.Logger {
 	lg := log15.New("module", serverName)
 
 	// default logger handle
 	h := lg.GetHandler()
-	// add sentry logger handle
-	sentryHandle := log15.FuncHandler(func(r *log15.Record) error {
-		if r.Lvl == log15.LvlError {
-			msg := string(log15.JsonFormat().Format(r))
-			go func(m string) {
-				sentry.CaptureMessage(m)
-			}(msg)
-		}
-		return nil
-	})
-
-	lg.SetHandler(log15.MultiHandler(h, sentryHandle))
+	lg.SetHandler(
+		log15.MultiHandler(
+			log15.LvlFilterHandler(log15.LvlError, log15.Must.FileHandler(logPath, log15.JsonFormat())),
+			h,
+		))
 
 	return lg
 }

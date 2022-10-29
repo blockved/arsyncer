@@ -2,6 +2,7 @@ package arsyncer
 
 import (
 	"fmt"
+	"github.com/inconshreveable/log15"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -13,7 +14,7 @@ import (
 	"github.com/panjf2000/ants/v2"
 )
 
-var log = NewLog("syncer")
+var log log15.Logger
 
 const (
 	SubscribeTypeTx         = "subscribe_tx"
@@ -41,7 +42,8 @@ type Syncer struct {
 	CloseCh            chan struct{}
 }
 
-func New(startHeight int64, endHeight int64, filterParams FilterParams, arNode string, conNum int, stableDistance int64, subscribeType string) *Syncer {
+func New(startHeight int64, endHeight int64, filterParams FilterParams, arNode string, conNum int, stableDistance int64, subscribeType string, logPath string) *Syncer {
+	log = NewLog("syncer", logPath)
 	if startHeight > endHeight {
 		endHeight = 0
 	}
