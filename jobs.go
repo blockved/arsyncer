@@ -11,7 +11,7 @@ func (s *Syncer) updateBlockHashList() {
 		return
 	}
 
-	idxs, err := GetBlockIdxs(s.curHeight, s.endHeight, s.arClient)
+	idxs, err := GetBlockIdxs(s.curHeight, s.arClient)
 	if err != nil {
 		log.Error("get blockIdxs failed", "err", err)
 		return

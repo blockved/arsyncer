@@ -17,15 +17,13 @@ type BlockIdxs struct {
 	IndepHashMap map[string]struct{}
 }
 
-func GetBlockIdxs(startHeight int64, endHeight int64, arCli *goar.Client) (*BlockIdxs, error) {
-	if endHeight == 0 {
-		info, err := arCli.GetInfo()
-		if err != nil {
-			log.Error("arCli.GetInfo()", "err", err)
-			return nil, err
-		}
-		endHeight = info.Height
+func GetBlockIdxs(startHeight int64, arCli *goar.Client) (*BlockIdxs, error) {
+	info, err := arCli.GetInfo()
+	if err != nil {
+		log.Error("arCli.GetInfo()", "err", err)
+		return nil, err
 	}
+	endHeight := info.Height
 	// get block hash_list from gateway3
 	spiltList, err := GetBlockHashListByGateway3(startHeight, endHeight)
 	if err != nil {
@@ -185,4 +183,3 @@ func GetBlockHashListByGateway3(startHeight, endHeight int64) ([]string, error) 
 	log.Debug("success get block hash_list from gateway3.", "start", startHeight, "end", endHeight)
 	return list, nil
 }
-

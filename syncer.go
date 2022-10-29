@@ -24,7 +24,6 @@ const (
 
 type Syncer struct {
 	curHeight int64
-	endHeight int64
 	FilterParams
 	blockChan            chan *types.Block
 	blockTxsChan         chan []SubscribeTx
@@ -43,11 +42,8 @@ type Syncer struct {
 	isCloseTx          atomic.Int32
 }
 
-func New(startHeight int64, endHeight int64, filterParams FilterParams, arNode string, conNum int, stableDistance int64, subscribeType string, logPath string, peers []string) *Syncer {
+func New(startHeight int64, filterParams FilterParams, arNode string, conNum int, stableDistance int64, subscribeType string, logPath string, peers []string) *Syncer {
 	log = NewLog("syncer", logPath)
-	if startHeight > endHeight {
-		panic("startHeight > endHeight")
-	}
 	if conNum <= 0 {
 		conNum = 10 // default concurrency of number is 10
 	}
@@ -57,7 +53,7 @@ func New(startHeight int64, endHeight int64, filterParams FilterParams, arNode s
 	arCli := goar.NewClient(arNode)
 
 	fmt.Println("Init arweave block indep hash_list, need to speed about 2 minutes...")
-	idxs, err := GetBlockIdxs(startHeight, endHeight, arCli)
+	idxs, err := GetBlockIdxs(startHeight, arCli)
 	if err != nil {
 		panic(err)
 	}
@@ -71,7 +67,6 @@ func New(startHeight int64, endHeight int64, filterParams FilterParams, arNode s
 	}
 	return &Syncer{
 		curHeight:            startHeight,
-		endHeight:            endHeight,
 		FilterParams:         filterParams,
 		blockChan:            make(chan *types.Block, 5*conNum),
 		SubscribeBlockChan:   make(chan *types.Block, 5*conNum),
@@ -137,20 +132,11 @@ func (s *Syncer) pollingBlock() {
 			time.Sleep(10 * time.Second)
 			continue
 		}
-		stableHeight := int64(0)
-		if s.endHeight != 0 {
-			stableHeight = s.endHeight
-		} else {
-			stableHeight = info.Height - s.stableDistance
-		}
+		stableHeight := info.Height - s.stableDistance
 		log.Debug("stable block", "height", stableHeight)
 
 		if s.curHeight >= stableHeight {
-			if s.endHeight != 0 {
-				s.CloseBlockCh()
-				return
-			}
-			log.Debug("synced curHeight must less than on chain stableHeight; please wait 2 minute", "curHeight", s.curHeight, "stableHeight", stableHeight, "endHeight", s.endHeight)
+			log.Debug("synced curHeight must less than on chain stableHeight; please wait 2 minute", "curHeight", s.curHeight, "stableHeight", stableHeight)
 			time.Sleep(2 * time.Minute)
 			continue
 		}
@@ -162,7 +148,7 @@ func (s *Syncer) pollingBlock() {
 				end = stableHeight
 			}
 			blocks := mustGetBlocks(start, end, s.arClient, s.blockIdxs, int(s.conNum), s.peers)
-			log.Info("get blocks success", "start", start, "end", end, "curHeight", s.curHeight, "stableHeight", stableHeight, "block", blocks)
+			log.Info("get blocks success", "start", start, "end", end, "curHeight", s.curHeight, "stableHeight", stableHeight)
 
 			s.curHeight = end + 1
 			// add chan
@@ -195,9 +181,6 @@ func (s *Syncer) pollingTx() {
 			}
 
 			go s.getTxs(*b)
-			if bHeight >= s.endHeight {
-				return
-			}
 		}
 	}
 }
@@ -237,9 +220,7 @@ func (s *Syncer) filterTx() {
 				return
 			}
 			filterTxs := make([]SubscribeTx, 0, len(txs))
-			height := int64(0)
 			for _, tx := range txs {
-				height = tx.BlockHeight
 				if filter(s.FilterParams, tx.Transaction) {
 					continue
 				}
@@ -248,10 +229,6 @@ func (s *Syncer) filterTx() {
 
 			if len(filterTxs) > 0 {
 				s.SubscribeChan <- filterTxs
-				if s.endHeight > 0 && height >= s.endHeight {
-					s.CloseTxCh()
-					return
-				}
 			}
 		}
 	}
