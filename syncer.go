@@ -162,7 +162,7 @@ func (s *Syncer) pollingBlock() {
 				end = stableHeight
 			}
 			blocks := mustGetBlocks(start, end, s.arClient, s.blockIdxs, int(s.conNum), s.peers)
-			log.Info("get blocks success", "start", start, "end", end, "curHeight", s.curHeight, "stableHeight", stableHeight)
+			log.Info("get blocks success", "start", start, "end", end, "curHeight", s.curHeight, "stableHeight", stableHeight, "block", blocks)
 
 			s.curHeight = end + 1
 			// add chan
