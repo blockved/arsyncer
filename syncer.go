@@ -100,6 +100,7 @@ func (s *Syncer) Close() (subscribeHeight int64) {
 		close(s.blockTxsChan)
 		close(s.SubscribeChan)
 		close(s.SubscribeBlockChan)
+		s.clearJobs()
 	}
 	return s.nextSubscribeTxBlock - 1
 }

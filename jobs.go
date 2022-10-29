@@ -31,3 +31,6 @@ func (s *Syncer) updatePeers() {
 	// update
 	s.peers = peers
 }
+func (s *Syncer) clearJobs() {
+	s.scheduler.Clear()
+}
