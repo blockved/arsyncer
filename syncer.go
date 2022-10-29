@@ -165,7 +165,10 @@ func (s *Syncer) pollingBlock() {
 func (s *Syncer) pollingTx() {
 	for {
 		select {
-		case b := <-s.blockChan:
+		case b, ok := <-s.blockChan:
+			if !ok {
+				return
+			}
 			bHeight := b.Height
 			for {
 				if bHeight-atomic.LoadInt64(&s.nextSubscribeTxBlock) < s.conNum {
@@ -210,7 +213,10 @@ func (s *Syncer) getTxs(b types.Block) {
 func (s *Syncer) filterTx() {
 	for {
 		select {
-		case txs := <-s.blockTxsChan:
+		case txs, ok := <-s.blockTxsChan:
+			if !ok {
+				return
+			}
 			filterTxs := make([]SubscribeTx, 0, len(txs))
 			for _, tx := range txs {
 				if filter(s.FilterParams, tx.Transaction) {
