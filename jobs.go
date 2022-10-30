@@ -1,8 +1,10 @@
 package arsyncer
 
-func (s *Syncer) runJobs() {
+func (s *Syncer) runJobs(isUpdatePeer bool) {
 	s.scheduler.Every(5).Seconds().SingletonMode().Do(s.updateBlockHashList)
-	s.scheduler.Every(1).Minute().SingletonMode().Do(s.updatePeers)
+	if isUpdatePeer {
+		s.scheduler.Every(1).Minute().SingletonMode().Do(s.updatePeers)
+	}
 	s.scheduler.StartAsync()
 }
 

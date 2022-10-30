@@ -35,7 +35,7 @@ type Syncer struct {
 	blockIdxs            *BlockIdxs
 	scheduler            *gocron.Scheduler
 	peers                []string
-	updatePeers          bool
+	isUpdatePeers        bool
 
 	subscribeType      string
 	SubscribeBlockChan chan *types.Block
@@ -83,13 +83,13 @@ func New(startHeight int64, filterParams FilterParams, arNode string, conNum int
 		blockIdxs:            idxs,
 		scheduler:            gocron.NewScheduler(time.UTC),
 		peers:                peers,
-		updatePeers:          updatePeers,
+		isUpdatePeers:        updatePeers,
 		subscribeType:        subscribeType,
 	}
 }
 
 func (s *Syncer) Run() {
-	go s.runJobs()
+	go s.runJobs(s.isUpdatePeers)
 	go s.pollingBlock()
 	go s.pollingTx()
 	go s.filterTx()
