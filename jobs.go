@@ -2,7 +2,7 @@ package arsyncer
 
 func (s *Syncer) runJobs() {
 	s.scheduler.Every(5).Seconds().SingletonMode().Do(s.updateBlockHashList)
-	//s.scheduler.Every(1).Minute().SingletonMode().Do(s.updatePeers)
+	s.scheduler.Every(1).Minute().SingletonMode().Do(s.updatePeers)
 	s.scheduler.StartAsync()
 }
 

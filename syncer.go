@@ -35,6 +35,7 @@ type Syncer struct {
 	blockIdxs            *BlockIdxs
 	scheduler            *gocron.Scheduler
 	peers                []string
+	updatePeers          bool
 
 	subscribeType      string
 	SubscribeBlockChan chan *types.Block
@@ -59,11 +60,14 @@ func New(startHeight int64, filterParams FilterParams, arNode string, conNum int
 	}
 	fmt.Println("Init arweave block indep hash_list finished...")
 
-	if len(peers) == 0 {
+	updatePeers := true
+	if peers == nil || len(peers) == 0 {
 		peers, err = arCli.GetPeers()
 		if err != nil {
 			panic(err)
 		}
+	} else {
+		updatePeers = false
 	}
 	return &Syncer{
 		curHeight:            startHeight,
@@ -79,6 +83,7 @@ func New(startHeight int64, filterParams FilterParams, arNode string, conNum int
 		blockIdxs:            idxs,
 		scheduler:            gocron.NewScheduler(time.UTC),
 		peers:                peers,
+		updatePeers:          updatePeers,
 		subscribeType:        subscribeType,
 	}
 }
