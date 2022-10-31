@@ -1,10 +1,10 @@
 package arsyncer
 
-func (s *Syncer) runJobs(isUpdatePeer bool) {
+import "github.com/duke-git/lancet/v2/slice"
+
+func (s *Syncer) runJobs() {
 	s.scheduler.Every(5).Seconds().SingletonMode().Do(s.updateBlockHashList)
-	if isUpdatePeer {
-		s.scheduler.Every(1).Minute().SingletonMode().Do(s.updatePeers)
-	}
+	s.scheduler.Every(1).Minute().SingletonMode().Do(s.updatePeers)
 	s.scheduler.StartAsync()
 }
 
@@ -31,6 +31,10 @@ func (s *Syncer) updatePeers() {
 		return
 	}
 	// update
+	if s.importantPeers != nil && len(s.importantPeers) > 0 {
+		peers = slice.Without(peers, s.importantPeers...)
+		peers = append(s.importantPeers, peers...)
+	}
 	s.peers = peers
 }
 func (s *Syncer) clearJobs() {

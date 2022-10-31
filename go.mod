@@ -3,6 +3,7 @@ module github.com/everFinance/arsyncer
 go 1.15
 
 require (
+	github.com/duke-git/lancet/v2 v2.1.8
 	github.com/everFinance/goar v1.3.9
 	github.com/go-co-op/gocron v1.11.0
 	github.com/inconshreveable/log15 v0.0.0-20201112154412-8562bdadbbac

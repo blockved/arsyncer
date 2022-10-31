@@ -7,6 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/duke-git/lancet/v2/slice"
 	"github.com/everFinance/goar"
 	"github.com/everFinance/goar/types"
 	"github.com/everFinance/goar/utils"
@@ -35,7 +36,7 @@ type Syncer struct {
 	blockIdxs            *BlockIdxs
 	scheduler            *gocron.Scheduler
 	peers                []string
-	isUpdatePeers        bool
+	importantPeers       []string
 
 	subscribeType      string
 	SubscribeBlockChan chan *types.Block
@@ -43,7 +44,7 @@ type Syncer struct {
 	isCloseTx          atomic.Int32
 }
 
-func New(startHeight int64, filterParams FilterParams, arNode string, conNum int, stableDistance int64, subscribeType string, logPath string, peers []string) *Syncer {
+func New(startHeight int64, filterParams FilterParams, arNode string, conNum int, stableDistance int64, subscribeType string, logPath string, impPeers []string) *Syncer {
 	log = NewLog("syncer", logPath)
 	if conNum <= 0 {
 		conNum = 10 // default concurrency of number is 10
@@ -60,14 +61,13 @@ func New(startHeight int64, filterParams FilterParams, arNode string, conNum int
 	}
 	fmt.Println("Init arweave block indep hash_list finished...")
 
-	updatePeers := true
-	if peers == nil || len(peers) == 0 {
-		peers, err = arCli.GetPeers()
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		updatePeers = false
+	peers, err := arCli.GetPeers()
+	if err != nil {
+		panic(err)
+	}
+	if impPeers != nil && len(impPeers) > 0 {
+		peers = slice.Without(peers)
+		peers = append(impPeers, peers...)
 	}
 	return &Syncer{
 		curHeight:            startHeight,
@@ -83,13 +83,13 @@ func New(startHeight int64, filterParams FilterParams, arNode string, conNum int
 		blockIdxs:            idxs,
 		scheduler:            gocron.NewScheduler(time.UTC),
 		peers:                peers,
-		isUpdatePeers:        updatePeers,
+		importantPeers:       impPeers,
 		subscribeType:        subscribeType,
 	}
 }
 
 func (s *Syncer) Run() {
-	go s.runJobs(s.isUpdatePeers)
+	go s.runJobs()
 	go s.pollingBlock()
 	go s.pollingTx()
 	go s.filterTx()
