@@ -361,14 +361,14 @@ func getTxByIdRetry(blockHeight int64, arCli *goar.Client, txId string, peers []
 func getBlockByHeightRetry(arCli *goar.Client, height int64, blockIdxs *BlockIdxs, peers []string) (*types.Block, error) {
 	count := 0
 	for {
-		b, err := arCli.GetBlockByHeight(height)
+		b, err := arCli.GetBlockFromPeers(height, peers...)
 		if err == nil {
 			// verify block
 			err = blockIdxs.VerifyBlock(*b)
 		}
 
 		if err != nil {
-			b, err = arCli.GetBlockFromPeers(height, peers...)
+			b, err = arCli.GetBlockByHeight(height)
 			if err == nil {
 				// verify block
 				err = blockIdxs.VerifyBlock(*b)
