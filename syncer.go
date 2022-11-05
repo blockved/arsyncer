@@ -60,6 +60,7 @@ func New(startHeight int64, filterParams FilterParams, arNode string, conNum int
 		panic(err)
 	}
 	fmt.Println("Init arweave block indep hash_list finished...")
+	fmt.Println("start=%v||end=%v||len=", idxs.StartHeight, idxs.EndHeight, len(idxs.IndepHashMap))
 
 	peers, err := arCli.GetPeers()
 	if err != nil {
