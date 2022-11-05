@@ -428,3 +428,9 @@ func filter(params FilterParams, tx types.Transaction) bool {
 
 	return false
 }
+func (s *Syncer) GetBlockByHeightRetry(height int64) (*types.Block, error) {
+	return getBlockByHeightRetry(s.arClient, height, s.blockIdxs, s.peers)
+}
+func (s *Syncer) GetTxByIdRetry(height int64, txId string) (types.Transaction, error) {
+	return getTxByIdRetry(height, s.arClient, txId, s.peers)
+}
