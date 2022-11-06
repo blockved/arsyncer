@@ -259,7 +259,7 @@ func mustGetTxs(blockHeight int64, blockTxs []string, arClient *goar.Client, con
 
 	p, _ := ants.NewPoolWithFunc(conNum, func(i interface{}) {
 		txId := i.(string)
-		tx, err := getTxAndDataByIdRetry(blockHeight, arClient, txId, peers)
+		tx, err := getTxByIdRetry(blockHeight, arClient, txId, peers)
 		if err != nil {
 			log.Error("get tx by id error", "txId", txId, "err", err)
 			// notice: must return fetch failed tx
