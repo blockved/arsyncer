@@ -60,7 +60,7 @@ func New(startHeight int64, filterParams FilterParams, arNode string, conNum int
 		panic(err)
 	}
 	fmt.Println("Init arweave block indep hash_list finished...")
-	fmt.Println("start=%v||end=%v||len=", idxs.StartHeight, idxs.EndHeight, len(idxs.IndepHashMap))
+	fmt.Printf("start=%v||end=%v||len=%v\n", idxs.StartHeight, idxs.EndHeight, len(idxs.IndepHashMap))
 
 	peers, err := arCli.GetPeers()
 	if err != nil {
@@ -359,6 +359,59 @@ func getTxByIdRetry(blockHeight int64, arCli *goar.Client, txId string, peers []
 	}
 }
 
+func getTxAndDataByIdRetry(blockHeight int64, arCli *goar.Client, txId string, peers []string) (types.Transaction, error) {
+	count := 0
+	for {
+		// get from trust node
+		tx, err := arCli.GetTransactionByID(txId)
+		if err == nil {
+			// get data
+			body, dataErr := arCli.GetTransactionData(txId)
+			if dataErr != nil {
+				err = dataErr
+			} else {
+				tx.Data = string(body)
+			}
+		}
+		if err == nil {
+			// verify tx, ignore genesis block txs
+			if blockHeight != 0 {
+				err = utils.VerifyTransaction(*tx)
+			}
+		}
+
+		if err != nil {
+			// get from non-trust nodes
+			tx, err = arCli.GetTxFromPeers(txId, peers...)
+			if err == nil {
+				// get data
+				body, dataErr := arCli.GetTxDataFromPeers(txId, peers...)
+				if dataErr != nil {
+					err = dataErr
+				} else {
+					tx.Data = string(body)
+				}
+
+			}
+			if err == nil {
+				// verify tx, ignore genesis block txs
+				if blockHeight != 0 {
+					err = utils.VerifyTransaction(*tx)
+				}
+			}
+		}
+
+		if err == nil {
+			return *tx, nil
+		}
+
+		if count == 5 {
+			return types.Transaction{}, err
+		}
+		count++
+		time.Sleep(2 * time.Second)
+	}
+}
 func getBlockByHeightRetry(arCli *goar.Client, height int64, blockIdxs *BlockIdxs, peers []string) (*types.Block, error) {
 	count := 0
 	for {
@@ -432,8 +485,8 @@ func filter(params FilterParams, tx types.Transaction) bool {
 func (s *Syncer) GetBlockByHeightRetry(height int64) (*types.Block, error) {
 	return getBlockByHeightRetry(s.arClient, height, s.blockIdxs, s.peers)
 }
-func (s *Syncer) GetTxByIdRetry(height int64, txId string) (types.Transaction, error) {
-	return getTxByIdRetry(height, s.arClient, txId, s.peers)
+func (s *Syncer) GetTxAndDataByIdRetry(height int64, txId string) (types.Transaction, error) {
+	return getTxAndDataByIdRetry(height, s.arClient, txId, s.peers)
 }
 func (s *Syncer) GetBlockAndTxByIdRetry(height int64) (b *types.Block, subTxs []SubscribeTx, err error) {
 	b, err = getBlockByHeightRetry(s.arClient, height, s.blockIdxs, s.peers)
@@ -442,6 +495,11 @@ func (s *Syncer) GetBlockAndTxByIdRetry(height int64) (b *types.Block, subTxs []
 	}
 	txs := mustGetTxs(height, b.Txs, s.arClient, int(s.conNum), s.peers)
 	subTxs = make([]SubscribeTx, 0, len(txs))
+	for idx := range txs {
+
+		txs[idx].Data
+
+	}
 
 	for _, tx := range txs {
 		sTx := SubscribeTx{
