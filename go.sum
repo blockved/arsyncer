@@ -90,6 +90,8 @@ github.com/blockved/goar v0.0.0-20221215075232-c2558bc60d6d h1:xJU6i4ubA4iaJo32w
 github.com/blockved/goar v0.0.0-20221215075232-c2558bc60d6d/go.mod h1:5Acrk16D5kLXSmToDJoXD8cJkpACoE63nFL+6sH4gIs=
 github.com/blockved/goar v0.0.0-20221215143314-fc32c8bef2a0 h1:Zld+d1o21GzI5H6EvT7QtnJdwW9fBVq5bNzpSfqDoUc=
 github.com/blockved/goar v0.0.0-20221215143314-fc32c8bef2a0/go.mod h1:5Acrk16D5kLXSmToDJoXD8cJkpACoE63nFL+6sH4gIs=
+github.com/blockved/goar v0.0.0-20221215152648-92cd048fd0de h1:lgTk1ueCq+QujSkY3KEzLfh6bMo+kj7yQVK6BPg09iw=
+github.com/blockved/goar v0.0.0-20221215152648-92cd048fd0de/go.mod h1:5Acrk16D5kLXSmToDJoXD8cJkpACoE63nFL+6sH4gIs=
 github.com/bmizerany/pat v0.0.0-20170815010413-6226ea591a40/go.mod h1:8rLXio+WjiTceGBHIoTvn60HIbs7Hm7bcHjyrSqYB9c=
 github.com/boltdb/bolt v1.3.1/go.mod h1:clJnj/oiGkjum5o1McbSZDSLxVThjynRyGBgiAx27Ps=
 github.com/btcsuite/btcd v0.20.1-beta h1:Ik4hyJqN8Jfyv3S4AGBOmyouMsYE3EdYODkMbQjwPGw=
