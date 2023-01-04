@@ -85,4 +85,4 @@ require (
 	gorm.io/gorm v1.22.4 // indirect
 )
 
-replace github.com/everFinance/goar => github.com/blockved/goar v0.0.0-20230104180355-b6aa124ec7eb
+replace github.com/everFinance/goar => github.com/blockved/goar v0.0.0-20230104180842-1efe13d607ed
