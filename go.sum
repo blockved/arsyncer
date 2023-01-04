@@ -106,6 +106,8 @@ github.com/blockved/goar v0.0.0-20230104180355-b6aa124ec7eb h1:j2EiNKWzpwXbAIUjg
 github.com/blockved/goar v0.0.0-20230104180355-b6aa124ec7eb/go.mod h1:5Acrk16D5kLXSmToDJoXD8cJkpACoE63nFL+6sH4gIs=
 github.com/blockved/goar v0.0.0-20230104180842-1efe13d607ed h1:ADc91bd0Y25q/O0flwFK9GniR9GOvRT98yLraPzMKkQ=
 github.com/blockved/goar v0.0.0-20230104180842-1efe13d607ed/go.mod h1:5Acrk16D5kLXSmToDJoXD8cJkpACoE63nFL+6sH4gIs=
+github.com/blockved/goar v0.0.0-20230104181227-cb79c752f006 h1:MAFt3+P42/mPem1Qt6kyLY0BKsQy+5+mAt9CJB1CGNo=
+github.com/blockved/goar v0.0.0-20230104181227-cb79c752f006/go.mod h1:5Acrk16D5kLXSmToDJoXD8cJkpACoE63nFL+6sH4gIs=
 github.com/bmizerany/pat v0.0.0-20170815010413-6226ea591a40/go.mod h1:8rLXio+WjiTceGBHIoTvn60HIbs7Hm7bcHjyrSqYB9c=
 github.com/boltdb/bolt v1.3.1/go.mod h1:clJnj/oiGkjum5o1McbSZDSLxVThjynRyGBgiAx27Ps=
 github.com/btcsuite/btcd v0.20.1-beta h1:Ik4hyJqN8Jfyv3S4AGBOmyouMsYE3EdYODkMbQjwPGw=
