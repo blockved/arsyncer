@@ -182,7 +182,7 @@ func (s *Syncer) pollingTx() {
 				if bHeight-atomic.LoadInt64(&s.nextSubscribeTxBlock) < s.conNum {
 					break
 				}
-				log.Debug("wait for pollingTxs", "wait block height", b.Height, "nextSubscribeTxBlock Height", s.nextSubscribeTxBlock)
+				// log.Debug("wait for pollingTxs", "wait block height", b.Height, "nextSubscribeTxBlock Height", s.nextSubscribeTxBlock)
 				time.Sleep(5 * time.Second)
 			}
 
@@ -300,7 +300,7 @@ func mustGetBlocks(start, end int64, arClient *goar.Client, blockIdxs *BlockIdxs
 		height := i.(int64)
 		b, err := getBlockByHeightRetry(arClient, height, blockIdxs, peers)
 		if err != nil {
-			log.Error("get block by height error", "height", height, "err", err)
+			log.Error("getBlockByHeightRetry get block by height error", "height", height, "err", err)
 			panic(err)
 		}
 
