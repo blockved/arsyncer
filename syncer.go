@@ -399,3 +399,24 @@ func filter(params FilterParams, tx types.Transaction) bool {
 
 	return false
 }
+
+func (s *Syncer) GetBlockAndTxByIdRetry(height int64) (b *types.Block, subTxs []SubscribeTx, err error) {
+	b, err = getBlockByHeightRetry(s.arClient, height, s.blockIdxs, s.peers)
+	if err != nil {
+		return
+	}
+	txs := mustGetTxs(height, b.Txs, s.arClient, int(s.conNum), s.peers)
+	subTxs = make([]SubscribeTx, 0, len(txs))
+
+	for _, tx := range txs {
+		sTx := SubscribeTx{
+			Transaction:    tx,
+			BlockHeight:    b.Height,
+			BlockId:        b.IndepHash,
+			BlockTimestamp: b.Timestamp,
+		}
+		subTxs = append(subTxs, sTx)
+	}
+	return b, subTxs, nil
+}
+
