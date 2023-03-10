@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/duke-git/lancet/v2 v2.1.8
-	github.com/everFinance/goar v1.4.8
+	github.com/everFinance/goar v1.4.3
 	github.com/go-co-op/gocron v1.11.0
 	github.com/inconshreveable/log15 v0.0.0-20201112154412-8562bdadbbac
 	github.com/panjf2000/ants/v2 v2.6.0
@@ -15,6 +15,7 @@ require (
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/btcsuite/btcd/btcutil v1.1.3 // indirect
+	github.com/btcsuite/btcutil v1.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0 // indirect
 	github.com/ethereum/go-ethereum v1.10.20 // indirect
@@ -50,5 +51,3 @@ require (
 	gorm.io/datatypes v1.0.1 // indirect
 	gorm.io/gorm v1.22.4 // indirect
 )
-
-replace github.com/everFinance/goar => github.com/blockved/goar v0.0.0-20230308063638-18b53e7e6807
