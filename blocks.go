@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-const BlockMaxCount = 10000
+const BlockMaxCount = 1000
 
 type BlockIdxs struct {
 	StartHeight  int64
