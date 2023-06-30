@@ -26,7 +26,7 @@ func GetBlockIdxs(startHeight int64, arCli *goar.Client) (*BlockIdxs, error) {
 	}
 	endHeight := info.Height
 	if endHeight-startHeight >= BlockMaxCount {
-		endHeight = startHeight + BlockMaxCount - 1
+		endHeight = startHeight + BlockMaxCount
 	}
 	// get block hash_list from trust node
 	spiltList, err := arCli.GetBlockHashList(int(startHeight), int(endHeight))
