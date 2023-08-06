@@ -84,6 +84,9 @@ func (s *Syncer) Run() {
 	go s.pollingTx()
 	go s.filterTx()
 }
+func (s *Syncer) SimpleRun() {
+	go s.runJobs()
+}
 
 func (s *Syncer) Close() (subscribeHeight int64) {
 	close(s.blockChan)
@@ -419,4 +422,3 @@ func (s *Syncer) GetBlockAndTxByIdRetry(height int64) (b *types.Block, subTxs []
 	}
 	return b, subTxs, nil
 }
-
