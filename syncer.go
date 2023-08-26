@@ -270,7 +270,7 @@ func mustGetBlocks(start, end int64, arClient *goar.Client, blockIdxs *BlockIdxs
 
 	p, _ := ants.NewPoolWithFunc(conNum, func(i interface{}) {
 		height := i.(int64)
-		b, err := getBlockByHeightRetry(arClient, height, blockIdxs, peers)
+		b, err := getBlockByHeightRetry(arClient, height, blockIdxs, peers, true)
 		if err != nil {
 			log.Error("getBlockByHeightRetry get block by height error", "height", height, "err", err)
 			panic(err)
@@ -331,18 +331,18 @@ func getTxByIdRetry(blockHeight int64, arCli *goar.Client, txId string, peers []
 	}
 }
 
-func getBlockByHeightRetry(arCli *goar.Client, height int64, blockIdxs *BlockIdxs, peers []string) (*types.Block, error) {
+func getBlockByHeightRetry(arCli *goar.Client, height int64, blockIdxs *BlockIdxs, peers []string, verify bool) (*types.Block, error) {
 	count := 0
 	for {
 		b, err := arCli.GetBlockByHeight(height)
-		if err == nil {
+		if err == nil && verify {
 			// verify block
 			err = blockIdxs.VerifyBlock(*b)
 		}
 
 		if err != nil {
 			b, err = arCli.GetBlockFromPeers(height, peers...)
-			if err == nil {
+			if err == nil && verify {
 				// verify block
 				err = blockIdxs.VerifyBlock(*b)
 			}
@@ -403,8 +403,8 @@ func filter(params FilterParams, tx types.Transaction) bool {
 	return false
 }
 
-func (s *Syncer) GetBlockAndTxByIdRetry(height int64) (b *types.Block, subTxs []SubscribeTx, err error) {
-	b, err = getBlockByHeightRetry(s.arClient, height, s.blockIdxs, s.peers)
+func (s *Syncer) GetBlockAndTxByIdRetry(height int64, verify bool) (b *types.Block, subTxs []SubscribeTx, err error) {
+	b, err = getBlockByHeightRetry(s.arClient, height, s.blockIdxs, s.peers, verify)
 	if err != nil {
 		return
 	}
